@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Input Table Example</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.8/xlsx.full.min.js"></script>
+</head>
+<body>
+	<table id="input-table">
+		<thead>
+			<tr>
+				<th></th>
+				<th>1</th>
+				<th>2</th>
+				<th>3</th>
+				<th>4</th>
+				<th>5</th>
+				<th>6</th>
+				<th>7</th>
+				<th>8</th>
+			</tr>
+		</thead>
+		<tbody>
+			<!-- Create 8 rows of input fields -->
+			<script>
+				// Define an array of fruit names
+				var fruits = ["Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape", "Honeydew", "Kiwi", "Lemon", "Mango", "Nectarine", "Orange", "Papaya", "Quince", "Raspberry", "Strawberry", "Tangerine", "Ugli fruit", "Vanilla bean", "Watermelon", "Xigua (Chinese watermelon)", "Yellow passionfruit", "Zucchini"];
+
+				for (var i = 1; i <= 8; i++) {
+					document.write("<tr>");
+					document.write("<th>" + i + "</th>");
+					for (var j = 1; j <= 3; j++) {
+						// Get a random fruit name from the array
+						var randomIndex = Math.floor(Math.random() * fruits.length);
+						var randomFruit = fruits[randomIndex];
+						document.write('<td><input type="text" id="cell-' + i + '-' + j + '" value="' + randomFruit + '"></td>');
+					}
+					for (var j = 4; j <= 8; j++) {
+						// Get a random fruit name from the array
+						var randomIndex = Math.floor(Math.random() * fruits.length);
+						var randomFruit = fruits[randomIndex];
+						document.write('<td><input type="text" id="cell-' + i + '-' + j + '" value="' + randomFruit + '"></td>');
+					}
+					document.write("</tr>");
+				}
+			</script>
+		</tbody>
+	</table>
+	<button onclick="combine()">Combine 1 and 2</button>
+	<button onclick="exportToExcel()">Export to Excel</button>
+
+	<script>
+		function combine() {
+			// Loop through each row and combine the first two cells
+			var table = document.getElementById("input-table");
+			for (var i = 1; i < table.rows.length; i++) {
+				var cell1 = table.rows[i].cells[1].firstChild;
+				var cell2 = table.rows[i].cells[2].firstChild;
+				var cell3 = table.rows[i].cells[3].firstChild;
+				cell3.value = cell1.value + " " + cell2.value;
+			}
+		}
+
+		function exportToExcel() {
+			// Create a new workbook
+			var wb = XLSX.utils.book_new();
+
+			// Get the input table data as a 2D array
+			var table = document.getElementById("input-table");
+			var data = [];
+			for (var i = 1; i < table.rows.length; i++) {
+				var row = [];
+				for (var j = 1; j < table.rows[i].cells.length; j++) {
+					var input = table.rows[i].cells[j].firstChild;
+					row.push(input.value);
+				}
+				data.push(row);
+			}
+
+			// Convert the data to a worksheet and add it to the workbook
+			var ws = XLSX.utils.aoa_to_sheet(data);
+			XLSX.utils.book_append_sheet(wb, ws, "Input Data");
+
+			// Save the workbook as an Excel file
+			XLSX.writeFile(wb, "input-data.xlsx");
+		}
+	</script>
+	
+	<script>
+    // Add an onpaste event listener to the input cells
+    var cells = document.getElementsByTagName("input");
+    for (var i = 0; i < cells.length; i++) {
+        cells[i].addEventListener("paste", function(e) {
+            e.preventDefault();
+            var text = e.clipboardData.getData("text/plain");
+            var items = text.split("\n");
+            var cellIndex = this.parentNode.cellIndex;
+            for (var j = 0; j < items.length; j++) {
+                var rowIndex = this.parentNode.parentNode.rowIndex + j;
+                var cell = document.getElementById("cell-" + rowIndex + "-" + cellIndex);
+                if (cell) {
+                    cell.value = items[j];
+                }
+            }
+        });
+    }
+</script>
+<button onclick="clearCells()">Clear Cells</button>
+
+<script>
+    function clearCells() {
+        var cells = document.getElementsByTagName("input");
+        for (var i = 0; i < cells.length; i++) {
+            cells[i].value = "";
+        }
+    }
+</script>
+<button onclick="fillRandomFruits()">Fill with Random Fruits</button>
+
+
+<script>
+function fillRandomFruits() {
+  // Array of fruits
+  var fruits = ["apple", "banana", "cherry", "date", "elderberry", "fig", "grape", "honeydew", "kiwi", "lemon", "mango", "nectarine", "orange", "peach", "pear", "quince", "raspberry", "strawberry", "tangerine", "watermelon", "blueberry", "blackberry", "pineapple", "pomegranate"];
+
+  // Shuffle the array
+  function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+    return array;
+  }
+  fruits = shuffleArray(fruits);
+
+  // Loop through each cell and assign a fruit
+  var table = document.getElementById("input-table");
+  var fruitIndex = 0;
+  for (var i = 1; i < table.rows.length; i++) {
+    for (var j = 1; j < table.rows[i].cells.length; j++) {
+      var cell = table.rows[i].cells[j].firstChild;
+      cell.value = fruits[fruitIndex];
+      fruitIndex++;
+      if (fruitIndex >= fruits.length) {
+        fruitIndex = 0;
+      }
+    }
+  }
+}
+
+</script>
+</body>
+</html>
